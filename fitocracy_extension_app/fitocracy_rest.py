@@ -19,6 +19,8 @@ class FitocracyRestSession(object):
 		return str(response.read())
 		
 	def login(self, user, password):
+		print(user)
+		print(password)
 		login_url = self.__BASE_URL +"/accounts/login/"
 		self.__opener.open(login_url)
 		

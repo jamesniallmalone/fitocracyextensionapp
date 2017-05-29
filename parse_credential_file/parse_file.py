@@ -6,7 +6,7 @@ class ParseCredentialFile(object):
 		self.dictionary = {}
 		
 		f = open(filename)
-		self.dictionary = dict([line.split() for line in f])
+		self.dictionary = dict([line.strip().split(':') for line in f])
 						
 		f.close()
 		
