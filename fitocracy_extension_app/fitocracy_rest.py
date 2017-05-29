@@ -19,8 +19,6 @@ class FitocracyRestSession(object):
 		return str(response.read())
 		
 	def login(self, user, password):
-		print(user)
-		print(password)
 		login_url = self.__BASE_URL +"/accounts/login/"
 		self.__opener.open(login_url)
 		
@@ -37,10 +35,10 @@ class FitocracyRestSession(object):
 		
 		request = urllib2.Request(login_url, post_data, headers=headers)
 		response = self.__opener.open(request)
-		
+				
 		content = str(response.read())
 		
-		self.__logged_in = False if "Something went wrong.<br />Please try again later." in content else True
+		self.__logged_in = False if "<!-- end of login modal -->" in content else True
 		self.store_userinfo()
 		
 		return self.__logged_in
