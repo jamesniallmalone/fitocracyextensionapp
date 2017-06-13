@@ -1,5 +1,6 @@
 import json
 import re
+import os
 
 import cookielib
 import urllib2
@@ -30,8 +31,8 @@ class FitocracyRestSession(object):
 									 'login': 'Log In',
 									 'next': ''}))
 		
-		headers = {"Referer": "https://www.fitocracy.com/accounts/login/",
-				  "Origin": "https://www.fitocracy.com"}
+		headers = {"Referer": login_url,
+				  "Origin": self.__BASE_URL}
 		
 		request = urllib2.Request(login_url, post_data, headers=headers)
 		response = self.__opener.open(request)
@@ -39,11 +40,11 @@ class FitocracyRestSession(object):
 		content = str(response.read())
 		
 		self.__logged_in = False if "<!-- end of login modal -->" in content else True
-		self.store_userinfo()
+		self._store_userinfo()
 		
 		return self.__logged_in
 		
-	def store_userinfo(self):
+	def _store_userinfo(self):
 		if self.__logged_in == False:
 			return
 		
@@ -51,6 +52,11 @@ class FitocracyRestSession(object):
 		
 		self.__user_id = re.search("""var user_id = "(.+?)";""",content).group(1)
 		self.__username = re.search("""var username = "(.+?)";""",content).group(1)
+		
+		self.__previousworkoutdirectory = 'previousruns/{0}'.format(self.__user_id)
+		
+		if not os.path.exists(self.__previousworkoutdirectory):
+			os.makedirs(self.__previousworkoutdirectory)
 		
 	def get_user_id(self):
 		return self.__user_id
@@ -66,6 +72,50 @@ class FitocracyRestSession(object):
 			return self._rest_request("/_get_activity_history_json/?activity-id={0}".format(id))
 		else:
 			return False
+		
+	def update_current_workout(self):
+		uactivites_tojson = self.get_user_activities()
+		print(uactivites_tojson)
+		currentworkout = json.loads(uactivites_tojson)
+		if self._check_new_workout(currentworkout) == True:
+			print("New workout found.")
+			self._outputdirectory(self.__previousworkoutdirectory + '/previous_workout_summary.txt', currentworkout)
+			print("Output to directory")
+		else:
+			print('No new workout.')
+				
+	def _find_json_diffs(self, jsona, jsonb):
+		listofdiffids = []
+		
+		for x_key in jsona:
+			if x_key not in jsonb:
+				listofdiffids.append(x_key["id"])
+			elif jsona[x_key] != jsonb[x_key]:
+				listofdiffids.append(x_key["id"])
+				
+		print listofdiffids
+		return listofdiffids
+		
+		
+	def _check_new_workout(self, currentworkout):
+		if self.__logged_in == False:
+			return False
+		
+		if not os.path.exists(self.__previousworkoutfile):
+			return True
+		
+		with open(self.__previousworkoutfile, 'r') as myfile:
+			data = json.loads(myfile.read())#.replace('\n','')
+			
+		if len(self._find_json_diffs(currentworkout, data)) > 0:
+			return True
+			
+		return False
+			
+	def _outputdirectory(self, directory, filecontent):
+		outputfile = open(directory, "w+")
+		outputfile.write(filecontent)
+		outputfile.close()
 		
 	def get_user_points(self):
 		if self.__logged_in == False:

@@ -25,25 +25,29 @@ while True:
 	print("[1] Full Activity Breakdown")
 	print("[2] Print user info")
 	print("[3] Print workout breakdown")
-	print("[4] Max Breakdown of each exercise with date.")
+	print("[4] Output activity breakdown.")
+	print("[5] Max Breakdown of each exercise with date.")
 	print("[0] Exit\n")
 
 	try:
 		a_input = int(raw_input("Enter command: "))
-
-		if a_input == 1:
-			print frs.get_user_activities() 
-		elif a_input == 2:
-			print("Your UID: {0}".format(frs.get_user_id()))
-			print("Your username: {0}".format(frs.get_username()))
-		elif a_input == 3:
-			print("Your recent activity: {0}".format(frs.get_user_points()))
-		elif a_input == 0:
-			print("Exit program")
-			exit(1)
-		else:
-			print("Not implemented yet")
 	except ValueError:
 		print("Not a valid number")
+	
+	if a_input == 1:
+		print frs.get_user_activities() 
+	elif a_input == 2:
+		print("Your UID: {0}".format(frs.get_user_id()))
+		print("Your username: {0}".format(frs.get_username()))
+	elif a_input == 3:
+		print("Your recent activity: {0}".format(frs.get_user_points()))
+	elif a_input == 4:
+		frs.update_current_workout()
+	elif a_input == 0:
+		print("Exit program")
+		exit(1)
+	else:
+		print("Not implemented yet")
+	
 		
 	print("\n\n\n")
