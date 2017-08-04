@@ -11,14 +11,16 @@ print("Beginning log in")
 
 parsefile = ParseCredentialFile(argv[1])
 
-frs = FitocracyRestSession()
+fitologin = FitocracyLogin(parsefile.get_username(), parsefile.get_password())
 
-if frs.login(parsefile.get_username(), parsefile.get_password()):
-	print("Successful log in.")
-else:
+if fitologin.checkLoggedIn() != True:
 	print("Error. Log in failed")
 	exit(1)
 	
+#Assume logged in correctly from here on.
+print("Successful log in.")
+fps = FitocracyParserSession(fitologin.getOpenerObject())
+
 print("==============================")
 
 while True:
@@ -35,14 +37,14 @@ while True:
 		print("Not a valid number")
 	
 	if a_input == 1:
-		print frs.get_user_activities() 
+		print fps.get_user_activities() 
 	elif a_input == 2:
-		print("Your UID: {0}".format(frs.get_user_id()))
-		print("Your username: {0}".format(frs.get_username()))
+		print("Your UID: {0}".format(fps.get_user_id()))
+		print("Your username: {0}".format(fps.get_username()))
 	elif a_input == 3:
-		print("Your recent activity: {0}".format(frs.get_user_points()))
-	elif a_input == 4:
-		frs.update_current_workout()
+		print("Your recent activity: {0}".format(fps.get_user_points()))
+	#elif a_input == 4:
+#		fps.update_current_workout()
 	elif a_input == 0:
 		print("Exit program")
 		exit(1)
